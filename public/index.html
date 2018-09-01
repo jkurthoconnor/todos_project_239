@@ -9,30 +9,40 @@
   <script src="javascripts/todo.js"></script>
 </head>
 <body>
-  Hello todos!
   <script type="text/x-handlebars" id="main_template">
   <input type="checkbox" id="sidebar_toggle"/>
   <div id="sidebar" >
     <section id="all">
       <div id="all_todos">
-        {{> all_todos_template}}
+{{!--
+      {{> all_todos_template}}
+--}}
       </div>
       <article id="all_lists">
+
+{{!--
         {{> all_list_template}}
+--}}
       </article>
     </section>
     <section class="completed" id="completed_items">
       <div id="completed_todos">
+{{!--
         {{> completed_todos_template}}
+--}}
       </div>
       <article id="completed_lists">
+{{!--
         {{> completed_list_template}}
+--}}
       </article>
     </section>
   </div>
   <div id="items" >
     <header>
+{{!--
       {{> title_template}}
+--}}
     </header>
     <main>
       <label for="new_item">
@@ -41,7 +51,9 @@
       </label>
       <table cellspacing="0">
         <tbody>
+{{!--
           {{> list_template}}
+--}}
         </tbody>
       </table>
         <div class="modal" id="modal_layer"></div>
@@ -137,6 +149,7 @@
     </main>
   </div>
   </script>
+
   <script type="text/x-handlebars" id="item_partial" data-type="partial">
     <tr  data-id="{{id}}" >
       <td class="list_item">
@@ -150,11 +163,13 @@
       <td class="delete"><img src="images/trash.png" alt="Delete"/></td>
     </tr>
   </script>
+
   <script type="text/x-handlebars" id="list_template" data-type="partial">
     {{#each selected}}
     {{> item_partial}}
     {{/each}}
   </script>
+
   <script type="text/x-handlebars" id="all_todos_template" data-type="partial">
     <header data-title="All Todos" data-total="{{todos.length}}" id="all_header">
       <dl>
@@ -163,6 +178,7 @@
       </dl>
     </header>
   </script>
+
   <script type="text/x-handlebars" id="completed_todos_template" data-type="partial">
     <header data-title="Completed" data-total="{{done.length}}" id="all_done_header">
       <dl>
@@ -171,6 +187,7 @@
       </dl>
     </header>
   </script>
+
   <script type="text/x-handlebars" id="all_list_template" data-type="partial">
     {{#each todos_by_date}}
       <dl data-title="{{@key}}" data-total="{{this.length}}">
@@ -179,6 +196,7 @@
       </dl>
     {{/each}}
   </script>
+
   <script type="text/x-handlebars" id="completed_list_template" data-type="partial">
     {{#each done_todos_by_date}}
       <dl data-title="{{@key}}" data-total="{{this.length}}" id="{{@key}}">
@@ -187,6 +205,7 @@
       </dl>
     {{/each}}
   </script>
+
   <script type="text/x-handlebars" id="title_template" data-type="partial">
    <label for="sidebar_toggle">
      <img src="images/hamburger.png" alt="Toggle Sidebar" />
