@@ -6,6 +6,7 @@ body {
   letter-spacing: 1px;
   position: relative;
 }
+
 #sidebar {
   width: 335px;
   background: #464f77;
@@ -309,6 +310,7 @@ form li:last-of-type{
 input[type="checkbox"] + section {
   display: none;
 }
+
 #form_modal{
   display: none;
   position: absolute;

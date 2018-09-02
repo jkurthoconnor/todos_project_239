@@ -4,6 +4,43 @@ $(function() {
 
   $('body').append(mainScript({}));
 
+  let localList = {
+    todos: [],
+
+    prepFormData: function(serializedArr) {
+      let jsonReady = {
+        completed: 'false',
+      };
+
+      serializedArr.forEach(function(field) {
+        jsonReady[field.name] = field.value;
+      });
+
+      return jsonReady;
+    },
+
+
+
+
+  }; // end of localList
+
+
+  const ui = {
+    duration: 600,
+
+    showModal: function() {
+      $('.modal').fadeIn(this.duration);
+    },
+
+    hideModal: function() {
+      $('.modal').fadeOut(this.duration);
+    },
+
+
+
+
+  }; // end of ui
+
   const api = {  // id args can be passed as num or str
     getList: function() {
       $.ajax({
@@ -35,6 +72,8 @@ $(function() {
         dataType: 'json',
         success: function(json) {
           console.log(json);
+          console.log(api.getList());
+          ui.hideModal();
         },
       });
     },
@@ -95,5 +134,29 @@ $(function() {
     "completed": "false",
   };
 
-});
+  $('label[for="new_item"]').on('click', function(e) {
+    ui.showModal();
+  });
+
+
+  $('#form_modal > form').on('submit', function(e) {
+    e.preventDefault();
+
+    let todoData = $(this).serializeArray();
+    let jsonTodoData = localList.prepFormData(todoData);
+
+    if (jsonTodoData["title"].replace(/\W/g, '').length < 3) {
+      alert("You must enter a title at least 3 characters long.");
+    } else {
+      api.saveNewTodo(jsonTodoData);
+    }
+  });
+
+
+
+
+
+
+
+}); // end of jQuery DOMLoaded wrapper
 
