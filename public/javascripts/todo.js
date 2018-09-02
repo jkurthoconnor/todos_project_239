@@ -210,6 +210,16 @@ api.getList();
     ui.hideModal();
   });
 
+  $('body').on('click', 'td.delete', function(e) {
+    e.preventDefault();
+
+    let itemId = $(this).parent().attr('data-id');
+
+    api.deleteTodo(itemId);
+  });
+
+
+
 
 
 
