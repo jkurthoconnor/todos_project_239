@@ -34,10 +34,34 @@ $(function() {
 
 
 
-  $('body').append(mainScript({}));
-
   let localList = {
     todos: [],
+
+    selected: [],
+
+    templateContext: function() {
+      return {
+        todos: this.todos,
+        selected: this.selectTodos(),
+      };
+    },
+
+    makeLocalTodos: function(json) {
+      json.forEach(function(todo, idx, arr) {
+        if (Number(todo.month) && Number(todo.year)) {
+          arr[idx]["due_date"] = `${todo.month}/${todo.year}`;
+        } else {
+          arr[idx]["due_date"] = 'No Due Date';
+        }
+      });
+
+      this.todos = json;
+    },
+
+    selectTodos: function(criteria) {
+      // placeholder
+      return this.todos;
+    },
 
     prepFormData: function(serializedArr) {
       let jsonReady = {
@@ -50,9 +74,6 @@ $(function() {
 
       return jsonReady;
     },
-
-
-
 
   }; // end of localList
 
@@ -68,9 +89,6 @@ $(function() {
       $('.modal').fadeOut(this.duration);
     },
 
-
-
-
   }; // end of ui
 
   const api = {  // id args can be passed as num or str
@@ -80,7 +98,8 @@ $(function() {
         type: 'GET',
         dataType: 'json',
         success: function(json) {
-          console.log(json);
+          localList.makeLocalTodos(json);
+          $('body').html(mainScript(localList.templateContext()));
         },
       });
     },
@@ -163,15 +182,18 @@ $(function() {
     "day": "11",
     "year": "2017",
     "description": "do stuff in morning",
+    "due_date": "No Due Date",
     "completed": "false",
   };
 
-  $('label[for="new_item"]').on('click', function(e) {
+api.getList();
+
+  $('body').on('click', 'label[for="new_item"]', function(e) {
     ui.showModal();
   });
 
 
-  $('#form_modal > form').on('submit', function(e) {
+  $('body').on('submit', '#form_modal > form', function(e) {
     e.preventDefault();
 
     let todoData = $(this).serializeArray();
@@ -184,8 +206,9 @@ $(function() {
     }
   });
 
-
-
+  $('body').on('click', '#modal_layer', function(e) {
+    ui.hideModal();
+  });
 
 
 
