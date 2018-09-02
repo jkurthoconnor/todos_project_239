@@ -2,6 +2,38 @@ $(function() {
   let mainTemplate = $('#main_template').html();
   let mainScript = Handlebars.compile(mainTemplate);
 
+  // REFACTOR
+  // register all partials via loop and collect via `data-type=partial`
+  let allTodosTemplate = $('#all_todos_template').html();
+  let allTodosScript = Handlebars.compile(allTodosTemplate);
+  Handlebars.registerPartial('all_todos_template', allTodosScript);
+
+  let titleTemplate = $('#title_template').html();
+  let titleScript = Handlebars.compile(titleTemplate);
+  Handlebars.registerPartial('title_template', titleScript);
+
+  let listTemplate = $('#list_template').html();
+  let listScript = Handlebars.compile(listTemplate);
+  Handlebars.registerPartial('list_template', listScript);
+
+  let itemPartialTemplate = $('#item_partial').html();
+  let itemPartialScript = Handlebars.compile(itemPartialTemplate);
+  Handlebars.registerPartial('item_partial', itemPartialScript);
+
+  let allListTemplate = $('#all_list_template').html();
+  let allListScript = Handlebars.compile(allListTemplate);
+  Handlebars.registerPartial('all_list_template', allListScript);
+
+  let completedTodosTemplate = $('#completed_todos_template').html();
+  let completedTodosScript = Handlebars.compile(completedTodosTemplate);
+  Handlebars.registerPartial('completed_todos_template', completedTodosScript);
+
+  let completedListTemplate = $('#completed_list_template').html();
+  let completedListScript = Handlebars.compile(completedListTemplate);
+  Handlebars.registerPartial('completed_list_template', completedListScript);
+
+
+
   $('body').append(mainScript({}));
 
   let localList = {
