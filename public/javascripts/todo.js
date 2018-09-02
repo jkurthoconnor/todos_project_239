@@ -43,7 +43,17 @@ $(function() {
       return {
         todos: this.todos,
         selected: this.selectTodos(),
+        current_section: {
+          title: 'All Todos',
+          data: this.todos.length,
+        },
       };
+    },
+
+    deleteLocalTodo: function(id) {
+      this.todos = this.todos.filter(function(todo) {
+        return todo.id !== Number(id);
+      });
     },
 
     makeLocalTodos: function(json) {
@@ -81,6 +91,10 @@ $(function() {
   const ui = {
     duration: 600,
 
+    drawMain: function() {
+      $('body').html(mainScript(localList.templateContext()));
+    },
+
     showModal: function() {
       $('.modal').fadeIn(this.duration);
     },
@@ -99,7 +113,7 @@ $(function() {
         dataType: 'json',
         success: function(json) {
           localList.makeLocalTodos(json);
-          $('body').html(mainScript(localList.templateContext()));
+          ui.drawMain();
         },
       });
     },
@@ -123,6 +137,7 @@ $(function() {
         dataType: 'json',
         success: function(json) {
           console.log(json);
+          // no need to get whole list? if not, save return (with added 'due_date') to local list
           console.log(api.getList());
           ui.hideModal();
         },
@@ -149,6 +164,10 @@ $(function() {
           204: function() {
           console.log('deleted');
           }
+        },
+        success: function() {
+          localList.deleteLocalTodo(id);
+          ui.drawMain();
         },
       });
     },
