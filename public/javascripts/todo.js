@@ -41,7 +41,7 @@ $(function() {
 
     templateContext: function() {
       return {
-        todos: this.todos,
+        todos: this.moveCompleteToEnd(this.todos),
         selected: this.selectTodos(),
         current_section: {
           title: 'All Todos',
@@ -56,6 +56,11 @@ $(function() {
       });
     },
 
+    /* need if decide to keep local changes w/o getting full list
+    updateLocalTodo: function(id) {
+
+    },
+*/
     makeLocalTodos: function(json) {
       json.forEach(function(todo, idx, arr) {
         if (Number(todo.month) && Number(todo.year)) {
@@ -68,9 +73,21 @@ $(function() {
       this.todos = json;
     },
 
+    getTodoById: function(id) {
+      return this.todos.filter(function(todo) {
+        return Number(id) === todo.id;
+      })[0];
+    },
+
     selectTodos: function(criteria) {
       // placeholder
       return this.todos;
+    },
+
+    moveCompleteToEnd(todos) {
+      return todos.sort(function(a, b) {
+        return Number(a.completed) - Number(b.completed);
+      });
     },
 
     prepFormData: function(serializedArr) {
@@ -100,7 +117,26 @@ $(function() {
     },
 
     hideModal: function() {
+      let $form = $('#form_modal > form');
+
+      $form.get(0).reset();
+      $form.removeAttr('data-id');
       $('.modal').fadeOut(this.duration);
+    },
+
+    showPreFilledModal: function(id) {
+      let $fields = $('#form_modal').find('[name="title"], [name="day"], [name="month"], [name="year"], [name="description"]');
+      let todo = localList.getTodoById(id);
+
+
+      $('#form_modal > form').attr('data-id', id);
+
+      $fields.each(function() {
+        let key = $(this).attr('name');
+        $(this).val(todo[key]);
+      });
+
+      this.showModal();
     },
 
   }; // end of ui
@@ -138,7 +174,7 @@ $(function() {
         success: function(json) {
           console.log(json);
           // no need to get whole list? if not, save return (with added 'due_date') to local list
-          console.log(api.getList());
+          api.getList();
           ui.hideModal();
         },
       });
@@ -151,7 +187,9 @@ $(function() {
         data: jsonObj,
         dataType: 'json',
         success: function(json) {
-          console.log(json);
+          // no need to get whole list? if not, save return (with added 'due_date') to local list
+          api.getList();
+          ui.hideModal();
         },
       });
     },
@@ -217,11 +255,29 @@ api.getList();
 
     let todoData = $(this).serializeArray();
     let jsonTodoData = localList.prepFormData(todoData);
+    let id = $('#form_modal > form').attr('data-id');
 
+    // REFACTOR: extract to list method?
     if (jsonTodoData["title"].replace(/\W/g, '').length < 3) {
       alert("You must enter a title at least 3 characters long.");
     } else {
-      api.saveNewTodo(jsonTodoData);
+      if (id) {
+        api.updateTodo(id, jsonTodoData); 
+      } else {
+        api.saveNewTodo(jsonTodoData);
+      }
+    }
+  });
+
+  $('body').on('click', '#form_modal button[name="complete"]', function(e) {
+    e.preventDefault();
+
+    let id = $('#form_modal > form').attr('data-id');
+
+    if (!id) {
+      alert("You may not complete a new item.");
+    } else {
+      api.updateTodo(id, {"completed": "true"});
     }
   });
 
@@ -237,6 +293,13 @@ api.getList();
     api.deleteTodo(itemId);
   });
 
+  $('body').on('click', '.list_item > label', function(e) {
+    e.preventDefault();
+
+    let itemId = $(this).closest('tr').attr('data-id');
+
+    ui.showPreFilledModal(itemId);
+  });
 
 
 
