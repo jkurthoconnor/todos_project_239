@@ -12,40 +12,6 @@ $(function() {
     Handlebars.registerPartial(title, script);
   });
 
-
-
-
-/*
-  let allTodosTemplate = $('#all_todos_template').html();
-  let allTodosScript = Handlebars.compile(allTodosTemplate);
-  Handlebars.registerPartial('all_todos_template', allTodosScript);
-
-  let titleTemplate = $('#title_template').html();
-  let titleScript = Handlebars.compile(titleTemplate);
-  Handlebars.registerPartial('title_template', titleScript);
-
-  let listTemplate = $('#list_template').html();
-  let listScript = Handlebars.compile(listTemplate);
-  Handlebars.registerPartial('list_template', listScript);
-
-  let itemPartialTemplate = $('#item_partial').html();
-  let itemPartialScript = Handlebars.compile(itemPartialTemplate);
-  Handlebars.registerPartial('item_partial', itemPartialScript);
-
-  let allListTemplate = $('#all_list_template').html();
-  let allListScript = Handlebars.compile(allListTemplate);
-  Handlebars.registerPartial('all_list_template', allListScript);
-
-  let completedTodosTemplate = $('#completed_todos_template').html();
-  let completedTodosScript = Handlebars.compile(completedTodosTemplate);
-  Handlebars.registerPartial('completed_todos_template', completedTodosScript);
-
-  let completedListTemplate = $('#completed_list_template').html();
-  let completedListScript = Handlebars.compile(completedListTemplate);
-  Handlebars.registerPartial('completed_list_template', completedListScript);
-
-*/
-
   let localList = {
     todos: [],
     selectionTerms: 'all:All Todos',
@@ -216,7 +182,6 @@ $(function() {
         success: function(json) {
           localList.makeLocalTodos(json);
           ui.drawMain();
-          console.log(localList.todos);
         },
       });
     },
@@ -254,7 +219,6 @@ $(function() {
         data: jsonObj,
         dataType: 'json',
         success: function(json) {
-          // no need to get whole list? if not, save return (with added 'due_date') to local list
           api.getList();
           ui.hideModal();
         },
@@ -283,34 +247,14 @@ $(function() {
         type: 'POST',
         success: function(json) {
           console.log(json);
+          api.getList();
         },
       });
     },
   };
 
 
-
-  let sampleTodo = {
-    "title": "Hello",
-    "month": "01",
-    "day": "11",
-    "year": "2017",
-    "description": "do stuff all day",
-    "completed": "false",
-  };
-
-
-  let sampleUpdate = {
-    "title": "Hello",
-    "month": "01",
-    "day": "11",
-    "year": "2017",
-    "description": "do stuff in morning",
-    "due_date": "No Due Date",
-    "completed": "false",
-  };
-
-api.getList();
+  api.getList();
 
   $('body').on('click', 'label[for="new_item"]', function(e) {
     ui.showModal();
@@ -360,12 +304,16 @@ api.getList();
     api.deleteTodo(itemId);
   });
 
-  $('body').on('click', '.list_item > label', function(e) {
+  $('body').on('click', 'td.list_item', function(e) {
     e.preventDefault();
 
     let itemId = $(this).closest('tr').attr('data-id');
 
-    ui.showPreFilledModal(itemId);
+    if ($(e.target).is('label')) {
+      ui.showPreFilledModal(itemId);
+    } else {
+       api.toggleTodoCompletion(itemId);
+    }
   });
 
 
