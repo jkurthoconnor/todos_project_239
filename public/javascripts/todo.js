@@ -169,8 +169,7 @@ $(function() {
 
       this.showModal();
     },
-
-  }; // end of ui
+  };
 
   const api = {  // id args can be passed as num or str
     getList: function() {
@@ -203,8 +202,6 @@ $(function() {
         data: jsonObj,
         dataType: 'json',
         success: function(json) {
-          console.log(json);
-          // no need to get whole list? if not, save return (with added 'due_date') to local list
           api.getList();
           ui.hideModal();
         },
@@ -245,7 +242,6 @@ $(function() {
         url: `http://localhost:4567/api/todos/${id}/toggle_completed`,
         type: 'POST',
         success: function(json) {
-          console.log(json);
           api.getList();
         },
       });
@@ -274,6 +270,7 @@ $(function() {
         delete jsonTodoData.completed;
         api.updateTodo(id, jsonTodoData); 
       } else {
+        localList.selectionTerms = 'all:All Todos';
         api.saveNewTodo(jsonTodoData);
       }
     }
