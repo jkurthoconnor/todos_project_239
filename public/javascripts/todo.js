@@ -37,12 +37,15 @@ $(function() {
   let localList = {
     todos: [],
 
-    selected: [],
-
     templateContext: function() {
+      // REFACTOR: group by date can take arg (done|todos) if
+      // find proper context
       return {
-        todos: this.moveCompleteToEnd(this.todos),
+        todos: this.todos,
         selected: this.selectTodos(),
+        done: this.getDoneTodos(),
+        todos_by_date: this.groupTodosByDate(this.todos),
+        done_todos_by_date: this.groupTodosByDate(this.getDoneTodos()),
         current_section: {
           title: 'All Todos',
           data: this.todos.length,
@@ -64,7 +67,7 @@ $(function() {
     makeLocalTodos: function(json) {
       json.forEach(function(todo, idx, arr) {
         if (Number(todo.month) && Number(todo.year)) {
-          arr[idx]["due_date"] = `${todo.month}/${todo.year}`;
+          arr[idx]["due_date"] = `${todo.month}/${todo.year.slice(2)}`;
         } else {
           arr[idx]["due_date"] = 'No Due Date';
         }
@@ -81,11 +84,38 @@ $(function() {
 
     selectTodos: function(criteria) {
       // placeholder
-      return this.todos;
+      return this.moveCompleteToEnd(this.todos);
     },
 
-    moveCompleteToEnd(todos) {
-      return todos.sort(function(a, b) {
+    groupTodosByDate: function(todos) {
+      let todosByDate = {};
+
+      todos.sort(function(a, b) {
+        let date1 = a.due_date.split('/').reverse().join('');
+        let date2 = b.due_date.split('/').reverse().join('');
+
+        return (Number(date1) || 0) - (Number(date2) || 0);
+      });
+
+      todos.forEach(function(todo) {
+        if (todosByDate[todo.due_date]) {
+          todosByDate[todo.due_date].push(todo);
+        } else {
+          todosByDate[todo.due_date] = [todo];
+        }
+      });
+
+      return todosByDate;
+    },
+
+    getDoneTodos: function() {
+      return this.todos.filter(function(todo) {
+        return todo.completed === true;
+      });
+    },
+
+    moveCompleteToEnd: function(selectedTodos) {
+      return selectedTodos.sort(function(a, b) {
         return Number(a.completed) - Number(b.completed);
       });
     },
@@ -106,7 +136,7 @@ $(function() {
 
 
   const ui = {
-    duration: 600,
+    duration: 500,
 
     drawMain: function() {
       $('body').html(mainScript(localList.templateContext()));
@@ -119,9 +149,9 @@ $(function() {
     hideModal: function() {
       let $form = $('#form_modal > form');
 
-      $form.get(0).reset();
-      $form.removeAttr('data-id');
       $('.modal').fadeOut(this.duration);
+      $form.removeAttr('data-id');
+      $form.get(0).reset();
     },
 
     showPreFilledModal: function(id) {
@@ -150,6 +180,7 @@ $(function() {
         success: function(json) {
           localList.makeLocalTodos(json);
           ui.drawMain();
+          console.log(localList.todos);
         },
       });
     },
