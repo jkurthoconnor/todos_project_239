@@ -36,13 +36,14 @@ $(function() {
 
   let localList = {
     todos: [],
+    selectionTerm: '',
 
     templateContext: function() {
       // REFACTOR: group by date can take arg (done|todos) if
       // find proper context
       return {
         todos: this.todos,
-        selected: this.selectTodos(),
+        selected: this.selectTodos(this.selectionTerm),
         done: this.getDoneTodos(),
         todos_by_date: this.groupTodosByDate(this.todos),
         done_todos_by_date: this.groupTodosByDate(this.getDoneTodos()),
@@ -84,6 +85,10 @@ $(function() {
 
     selectTodos: function(criteria) {
       // placeholder
+      // with listeners on sidebar for any dl click, check closest section id
+      // if it is 'all', get closest value for `data-title` and use to access to
+      // todos or todos_by_date
+      // if it is `completed`, get closest value for `data-title` and use access done of done_by_date
       return this.moveCompleteToEnd(this.todos);
     },
 
@@ -115,7 +120,9 @@ $(function() {
     },
 
     moveCompleteToEnd: function(selectedTodos) {
-      return selectedTodos.sort(function(a, b) {
+      let clone = selectedTodos.slice();
+
+      return clone.sort(function(a, b) {
         return Number(a.completed) - Number(b.completed);
       });
     },
