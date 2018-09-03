@@ -2,8 +2,20 @@ $(function() {
   let mainTemplate = $('#main_template').html();
   let mainScript = Handlebars.compile(mainTemplate);
 
-  // REFACTOR
-  // register all partials via loop and collect via `data-type=partial`
+  let $partials = $('[data-type="partial"]');
+
+  $partials.each(function() {
+    let template = $(this).html();
+    let script = Handlebars.compile(template);
+    let title = $(this).attr('id');
+
+    Handlebars.registerPartial(title, script);
+  });
+
+
+
+
+/*
   let allTodosTemplate = $('#all_todos_template').html();
   let allTodosScript = Handlebars.compile(allTodosTemplate);
   Handlebars.registerPartial('all_todos_template', allTodosScript);
@@ -32,7 +44,7 @@ $(function() {
   let completedListScript = Handlebars.compile(completedListTemplate);
   Handlebars.registerPartial('completed_list_template', completedListScript);
 
-
+*/
 
   let localList = {
     todos: [],
