@@ -36,21 +36,16 @@ $(function() {
 
   let localList = {
     todos: [],
-    selectionTerm: '',
+    selectionTerms: 'all:All Todos',
 
-    templateContext: function() {
-      // REFACTOR: group by date can take arg (done|todos) if
-      // find proper context
+    setContext: function() {
       return {
         todos: this.todos,
-        selected: this.selectTodos(this.selectionTerm),
-        done: this.getDoneTodos(),
-        todos_by_date: this.groupTodosByDate(this.todos),
-        done_todos_by_date: this.groupTodosByDate(this.getDoneTodos()),
-        current_section: {
-          title: 'All Todos',
-          data: this.todos.length,
-        },
+        done: this.setDoneTodos(),
+        todos_by_date: this.setByDate(this.todos, 'todos'),
+        done_todos_by_date: this.setByDate(this.done, 'done'),
+        selected: this.setSelection(this.selectionTerms),
+        current_section: this.currentSection,
       };
     },
 
@@ -60,11 +55,6 @@ $(function() {
       });
     },
 
-    /* need if decide to keep local changes w/o getting full list
-    updateLocalTodo: function(id) {
-
-    },
-*/
     makeLocalTodos: function(json) {
       json.forEach(function(todo, idx, arr) {
         if (Number(todo.month) && Number(todo.year)) {
@@ -83,17 +73,36 @@ $(function() {
       })[0];
     },
 
-    selectTodos: function(criteria) {
-      // placeholder
-      // with listeners on sidebar for any dl click, check closest section id
-      // if it is 'all', get closest value for `data-title` and use to access to
-      // todos or todos_by_date
-      // if it is `completed`, get closest value for `data-title` and use access done of done_by_date
-      return this.moveCompleteToEnd(this.todos);
+    setSelection: function(terms) {
+      let data;
+      let [category, list] = terms.split(':'); 
+      
+      if (category === 'all' && list === 'All Todos') {
+        data = this.todos || [];
+      } else if (category === 'completed_items' && list === 'Completed') {
+        data = this.done || [];
+      } else if (category === 'all') {
+        data = this.todosByDate[list] || [];
+      } else {
+        data = this.doneTodosByDate[list] || [];
+      }
+
+      this.setCurrentSection(list, data.length);
+      this.selection = this.moveCompleteToEnd(data);
+
+      return this.selection;
     },
 
-    groupTodosByDate: function(todos) {
-      let todosByDate = {};
+    setCurrentSection(sectionTitle, count) {
+      this.currentSection = {
+          title: sectionTitle,
+          data: count,
+      };
+    },
+
+    setByDate: function(todos, target) {
+      let result = {};
+      todos = todos.slice();
 
       todos.sort(function(a, b) {
         let date1 = a.due_date.split('/').reverse().join('');
@@ -103,20 +112,28 @@ $(function() {
       });
 
       todos.forEach(function(todo) {
-        if (todosByDate[todo.due_date]) {
-          todosByDate[todo.due_date].push(todo);
+        if (result[todo.due_date]) {
+          result[todo.due_date].push(todo);
         } else {
-          todosByDate[todo.due_date] = [todo];
+          result[todo.due_date] = [todo];
         }
       });
 
-      return todosByDate;
+      if (target === 'todos') {
+        this.todosByDate = result;
+      } else {
+        this.doneTodosByDate = result;
+      }
+
+      return result;
     },
 
-    getDoneTodos: function() {
-      return this.todos.filter(function(todo) {
+    setDoneTodos: function() {
+      this.done = this.todos.filter(function(todo) {
         return todo.completed === true;
       });
+
+      return this.done;
     },
 
     moveCompleteToEnd: function(selectedTodos) {
@@ -146,7 +163,7 @@ $(function() {
     duration: 500,
 
     drawMain: function() {
-      $('body').html(mainScript(localList.templateContext()));
+      $('body').html(mainScript(localList.setContext()));
     },
 
     showModal: function() {
@@ -340,8 +357,22 @@ api.getList();
   });
 
 
+  $('body').on('click', '#sidebar dl', function(e) {
+    e.preventDefault();
+
+    let section = $(this).closest('section').attr('id');
+    let title = $(this).closest('[data-title]').attr('data-title'); 
+    
+    localList.selectionTerms = `${section}:${title}`;
+
+    console.log(localList.selectionTerms);
+
+    ui.drawMain();
+
+  });
 
 
 
 }); // end of jQuery DOMLoaded wrapper
+
 
