@@ -133,8 +133,7 @@ $(function() {
 
       return jsonReady;
     },
-
-  }; // end of localList
+  };
 
 
   const ui = {
@@ -268,11 +267,11 @@ $(function() {
     let jsonTodoData = localList.prepFormData(todoData);
     let id = $('#form_modal > form').attr('data-id');
 
-    // REFACTOR: extract to list method?
     if (jsonTodoData["title"].replace(/\W/g, '').length < 3) {
       alert("You must enter a title at least 3 characters long.");
     } else {
       if (id) {
+        delete jsonTodoData.completed;
         api.updateTodo(id, jsonTodoData); 
       } else {
         api.saveNewTodo(jsonTodoData);
@@ -312,7 +311,7 @@ $(function() {
     if ($(e.target).is('label')) {
       ui.showPreFilledModal(itemId);
     } else {
-       api.toggleTodoCompletion(itemId);
+      api.toggleTodoCompletion(itemId);
     }
   });
 
