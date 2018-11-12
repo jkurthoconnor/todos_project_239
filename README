@@ -1,0 +1,8 @@
+Final front-end assessment project.
+
+To run the app, from project root:
+
+`$ bundle install`
+`ruby todos.rm`
+
+App url: localhost:4567
