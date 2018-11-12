@@ -27,12 +27,6 @@ $(function() {
       };
     },
 
-    deleteLocalTodo: function(id) {
-      this.todos = this.todos.filter(function(todo) {
-        return todo.id !== Number(id);
-      });
-    },
-
     makeLocalTodos: function(json) {
       json.forEach(function(todo, idx, arr) {
         if (Number(todo.month) && Number(todo.year)) {
@@ -45,16 +39,10 @@ $(function() {
       this.todos = json;
     },
 
-    getTodoById: function(id) {
-      return this.todos.filter(function(todo) {
-        return Number(id) === todo.id;
-      })[0];
-    },
-
     setSelection: function(terms) {
       let data;
       let [category, list] = terms.split(':'); 
-      
+
       if (category === 'all' && list === 'All Todos') {
         data = this.todos || [];
       } else if (category === 'completed_items' && list === 'Completed') {
@@ -122,6 +110,18 @@ $(function() {
       });
     },
 
+    getTodoById: function(id) {
+      return this.todos.filter(function(todo) {
+        return Number(id) === todo.id;
+      })[0];
+    },
+
+    deleteLocalTodo: function(id) {
+      this.todos = this.todos.filter(function(todo) {
+        return todo.id !== Number(id);
+      });
+    },
+
     prepFormData: function(serializedArr) {
       let jsonReady = {
         completed: 'false',
@@ -134,7 +134,6 @@ $(function() {
       return jsonReady;
     },
   };
-
 
   const ui = {
     duration: 500,
@@ -158,7 +157,6 @@ $(function() {
     showPreFilledModal: function(id) {
       let $fields = $('#form_modal').find('[name="title"], [name="day"], [name="month"], [name="year"], [name="description"]');
       let todo = localList.getTodoById(id);
-
 
       $('#form_modal > form').attr('data-id', id);
 
@@ -190,8 +188,7 @@ $(function() {
         type: 'GET',
         dataType: 'json',
         success: function(json) {
-          console.log(json);
-        }
+        },
       });
     },
 
@@ -248,13 +245,12 @@ $(function() {
     },
   };
 
-
   api.getList();
+
 
   $('body').on('click', 'label[for="new_item"]', function(e) {
     ui.showModal();
   });
-
 
   $('body').on('submit', '#form_modal > form', function(e) {
     e.preventDefault();
@@ -263,6 +259,7 @@ $(function() {
     let jsonTodoData = localList.prepFormData(todoData);
     let id = $('#form_modal > form').attr('data-id');
 
+    console.log(todoData);
     if (jsonTodoData["title"].replace(/\W/g, '').length < 3) {
       alert("You must enter a title at least 3 characters long.");
     } else {
@@ -312,23 +309,15 @@ $(function() {
     }
   });
 
-
   $('body').on('click', '#sidebar dl', function(e) {
     e.preventDefault();
 
     let section = $(this).closest('section').attr('id');
     let title = $(this).closest('[data-title]').attr('data-title'); 
-    
+
     localList.selectionTerms = `${section}:${title}`;
-
-    console.log(localList.selectionTerms);
-
     ui.drawMain();
-
   });
-
-
-
-}); // end of jQuery DOMLoaded wrapper
+});
 
 
